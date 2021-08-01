@@ -60,9 +60,8 @@ namespace proxmox_cloud
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            services.AddIdentity<IdentityUser, IdentityRole>()
-                .AddDefaultUI()
-                .AddDefaultTokenProviders()
+            services.AddDefaultIdentity<IdentityUser>()
+                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddControllersWithViews(o =>
             {
