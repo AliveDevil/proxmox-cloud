@@ -25,15 +25,15 @@ namespace proxmox_cloud.Services
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<IdentityUser>>();
 
-            if (await roleManager.FindByNameAsync("builtin_admin") is not IdentityRole)
+            if (await roleManager.FindByNameAsync("Administrator") is not IdentityRole)
             {
-                IdentityRole role = new("builtin_admin");
+                IdentityRole role = new("Administrator");
                 if (await roleManager.CreateAsync(role) is IdentityResult result && result != IdentityResult.Success)
                 {
                     // TODO: Error
                 }
             }
-            var users = await userManager.GetUsersInRoleAsync("builtin_admin");
+            var users = await userManager.GetUsersInRoleAsync("Administrator");
             if (users.Count == 0)
             {
                 IdentityUser user = new("admin");
@@ -43,7 +43,7 @@ namespace proxmox_cloud.Services
                     // TODO: Error
                 }
                 logger.Log(LogLevel.Information, "PLEASE CHANGE! `admin` `password is `Proxmox`.");
-                await userManager.AddToRoleAsync(user, "builtin_admin");
+                await userManager.AddToRoleAsync(user, "Administrator");
             }
         }
 
