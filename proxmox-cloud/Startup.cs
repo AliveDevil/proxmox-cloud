@@ -44,9 +44,10 @@ namespace proxmox_cloud
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    name: "areas",
+                    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
+                endpoints.MapFallbackToAreaController("Fallback", "Home", "Project");
             });
         }
 
@@ -59,8 +60,9 @@ namespace proxmox_cloud
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddRoles<IdentityRole>()
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddDefaultUI()
+                .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddControllersWithViews(o =>
             {
