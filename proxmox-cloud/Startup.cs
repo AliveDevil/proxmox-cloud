@@ -7,7 +7,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Polly;
+using proxmox_cloud.CephApi;
 using proxmox_cloud.Data;
+using proxmox_cloud.ProxmoxApi;
+using proxmox_cloud.Services;
+using System;
+using System.Net;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace proxmox_cloud
 {
@@ -33,7 +42,7 @@ namespace proxmox_cloud
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();
@@ -57,6 +66,50 @@ namespace proxmox_cloud
                 options.UseSqlite(
                     Configuration.GetConnectionString("DefaultConnection")));
             services.AddScoped(p => p.GetRequiredService<IDbContextFactory<ApplicationDbContext>>().CreateDbContext());
+
+            services.AddSingleton<ProxmoxHostProvider>();
+
+            services.AddSingleton<ProxmoxAuthenticator>()
+                .AddHttpClient<ProxmoxAuthenticator>(client =>
+                {
+                    client.DefaultRequestHeaders.Add("User-Agent", "Proxmox-Cloud");
+                })
+                .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
+                {
+                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                });
+
+            services.AddHttpClient<PveClient>(client =>
+            {
+                client.DefaultRequestHeaders.Add("User-Agent", "Proxmox-Cloud");
+            }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
+            {
+                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            }).AddHttpMessageHandler(s => ActivatorUtilities.CreateInstance<ProxmoxAuthenticator.Handler>(s))
+            .AddPolicyHandler((provider, request) =>
+            {
+                return Policy.HandleResult<HttpResponseMessage>(r => r.StatusCode == HttpStatusCode.Unauthorized)
+                    .RetryAsync(1, (response, retryCount, context) =>
+                    {
+                        var client = provider.GetRequiredService<PveClient>();
+                    });
+            });
+
+            services.AddHttpClient<CephClient>(client =>
+            {
+                client.DefaultRequestHeaders.Add("User-Agent", "Proxmox-Cloud");
+            }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
+            {
+                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            }).AddHttpMessageHandler(s => ActivatorUtilities.CreateInstance<CephAuthenticator.Handler>(s))
+            .AddPolicyHandler((provider, request) =>
+            {
+                return Policy.HandleResult<HttpResponseMessage>(r => r.StatusCode == HttpStatusCode.Unauthorized)
+                    .RetryAsync(1, (response, retryCount, context) =>
+                    {
+                        var client = provider.GetRequiredService<CephClient>();
+                    });
+            });
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 
