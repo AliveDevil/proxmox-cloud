@@ -22,12 +22,19 @@
 				<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
 					<ul class="navbar-nav flex-grow-1">
 						<li class="nav-item">
-							<a class="nav-link text-dark" asp-area="Project" asp-controller="Home" asp-action="Index">Project</a>
+							<a class="nav-link text-dark" asp-area="Project" asp-page="/Index">Project</a>
 						</li>
 						@if (SignInManager.IsSignedIn(User) && User.IsInRole("Administrator"))
 						{
-							<li class="nav-item">
-								<a class="nav-link text-dark" asp-area="Admin" asp-controller="Home" asp-action="Index">Admin</a>
+							<li class="nav-item dropdown">
+								<a asp-area="Admin" asp-page="/Index"
+								   class="nav-link dropdown-toggle text-dark"
+								   data-toggle="dropdown"
+								   role="button"
+								   aria-haspopup="true" aria-expanded="false">Admin</a>
+								<div class="dropdown-menu">
+									<a class="dropdown-item" asp-area="Admin" asp-page="/System/Index">System</a>
+								</div>
 							</li>
 						}
 					</ul>

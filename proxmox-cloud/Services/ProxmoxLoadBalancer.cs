@@ -7,17 +7,16 @@ namespace proxmox_cloud.Services
 {
     public class ProxmoxLoadBalancer : IHostedService
     {
-        private readonly PveClient client;
+        private readonly PveClientFactory clientFactory;
 
-        public ProxmoxLoadBalancer(PveClient client)
+        public ProxmoxLoadBalancer(PveClientFactory clientFactory)
         {
-            this.client = client;
+            this.clientFactory = clientFactory;
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken)
+        public Task StartAsync(CancellationToken cancellationToken)
         {
-            var version = await client.GetVersionAsync();
-            var nodes = await client.GetNodesAsync();
+            return Task.CompletedTask;
         }
 
         public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;

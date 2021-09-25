@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +11,7 @@ using proxmox_cloud.CephApi;
 using proxmox_cloud.Data;
 using proxmox_cloud.ProxmoxApi;
 using proxmox_cloud.Services;
+using Refit;
 using System;
 using System.Net;
 using System.Net.Http;
@@ -52,11 +52,12 @@ namespace proxmox_cloud
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllerRoute(
-                    name: "areas",
-                    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
-                endpoints.MapRazorPages();
-                endpoints.MapFallbackToAreaController("Fallback", "Home", "Project");
+                endpoints.MapRazorPages().RequireAuthorization();
+                endpoints.MapFallback(context =>
+                {
+                    context.Response.Redirect("/Project");
+                    return Task.CompletedTask;
+                });
             });
         }
 
@@ -67,33 +68,19 @@ namespace proxmox_cloud
                     Configuration.GetConnectionString("DefaultConnection")));
             services.AddScoped(p => p.GetRequiredService<IDbContextFactory<ApplicationDbContext>>().CreateDbContext());
 
+            services.AddSingleton<PveClientFactory>();
             services.AddSingleton<ProxmoxHostProvider>();
 
-            services.AddSingleton<ProxmoxAuthenticator>()
-                .AddHttpClient<ProxmoxAuthenticator>(client =>
-                {
-                    client.DefaultRequestHeaders.Add("User-Agent", "Proxmox-Cloud");
-                })
-                .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
-                {
-                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-                });
-
-            services.AddHttpClient<PveClient>(client =>
+            services.AddRefitClient<IPveClient>(new RefitSettings()
+            {
+                ContentSerializer = new SystemTextJsonContentSerializer()
+            }).ConfigureHttpClient(client =>
             {
                 client.DefaultRequestHeaders.Add("User-Agent", "Proxmox-Cloud");
-            }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
+            }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
             {
                 ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-            }).AddHttpMessageHandler(s => ActivatorUtilities.CreateInstance<ProxmoxAuthenticator.Handler>(s))
-            .AddPolicyHandler((provider, request) =>
-            {
-                return Policy.HandleResult<HttpResponseMessage>(r => r.StatusCode == HttpStatusCode.Unauthorized)
-                    .RetryAsync(1, (response, retryCount, context) =>
-                    {
-                        var client = provider.GetRequiredService<PveClient>();
-                    });
-            });
+            }).AddHttpMessageHandler(s => ActivatorUtilities.CreateInstance<ProxmoxAuthenticator>(s));
 
             services.AddHttpClient<CephClient>(client =>
             {
@@ -113,15 +100,46 @@ namespace proxmox_cloud
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Admin", new AuthorizationPolicyBuilder()
+                    .RequireRole("Administrator")
+                    .Build());
+            });
             services.AddDefaultIdentity<IdentityUser>()
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
-            services.AddControllersWithViews(o =>
+            services.AddRazorPages(options =>
             {
-                o.Filters.Add(new AuthorizeFilter(new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build()));
+                options.Conventions.AuthorizeAreaFolder("Admin", "/", "Admin");
             });
+        }
+
+        private class HostSelector : DelegatingHandler
+        {
+            private static readonly HttpRequestOptionsKey<Uri> robinRequest = new("PveHostSelector");
+            private readonly ProxmoxHostProvider hostProvider;
+
+            public HostSelector(ProxmoxHostProvider hostProvider)
+            {
+                this.hostProvider = hostProvider;
+            }
+
+            protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+            {
+                if (request.Options.TryGetValue(robinRequest, out _) || request.RequestUri.Host == "x-host")
+                {
+                    request.RequestUri = new Uri(request.RequestUri.PathAndQuery, UriKind.Relative);
+                }
+                if (!request.RequestUri.IsAbsoluteUri)
+                {
+                    var baseUri = hostProvider.Get();
+                    request.RequestUri = new Uri(baseUri, request.RequestUri);
+                    request.Options.Set(robinRequest, baseUri);
+                }
+
+                return base.SendAsync(request, cancellationToken);
+            }
         }
     }
 }

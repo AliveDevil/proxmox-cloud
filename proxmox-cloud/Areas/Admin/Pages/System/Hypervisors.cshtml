@@ -1,0 +1,41 @@
+﻿@page
+@model HypervisorsModel
+@{
+}
+<h3>All Hypervisors</h3>
+
+<h4>Summary</h4>
+<p>
+	<span class="font-weight-bold">CPU: </span>Used @(Model.CPU.Hundreds().ToString("#"))% of @Model.MaxCPU CPUs
+</p>
+<p>
+	<span class="font-weight-bold">Memory: </span>Used @Model.Memory.Bytes().ToString("#") of @Model.MaxMemory.Bytes().ToString("#")
+</p>
+
+<h4>Hypervisors</h4>
+<table class="table">
+	<caption>Displaying @Model.Hypervisors.Count items.</caption>
+	<thead class="thead-light">
+		<tr>
+			<th scope="col">Hostname</th>
+			<th scope="col">CPUs (total)</th>
+			<th scope="col">CPUs (used)</th>
+			<th scope="col">Memory (total)</th>
+			<th scope="col">Memory (used)</th>
+			<th scope="col">Instances</th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var item in Model.Hypervisors)
+		{
+			<tr>
+				<th scope="row">@item.Hostname</th>
+				<td>@item.MaxCPU</td>
+				<td>@item.CPU.Hundreds().ToString("#")%</td>
+				<td>@item.MaxMemory.Bytes().ToString("#")</td>
+				<td>@item.Memory.Bytes().ToString("#")</td>
+				<td>@item.Instances</td>
+			</tr>
+		}
+	</tbody>
+</table>

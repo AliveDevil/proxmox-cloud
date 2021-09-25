@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 
-[assembly: HostingStartup(typeof(proxmox_cloud.Areas.Identity.IdentityHostingStartup))]
+[assembly: HostingStartup(typeof(proxmox_cloud.Areas.Project.ProjectHostingStartup))]
 
-namespace proxmox_cloud.Areas.Identity
+namespace proxmox_cloud.Areas.Project
 {
-    public class IdentityHostingStartup : IHostingStartup
+    public class ProjectHostingStartup : IHostingStartup
     {
         public void Configure(IWebHostBuilder builder)
         {
