@@ -1,0 +1,17 @@
+﻿@{
+	Layout = "../Shared/_Layout.cshtml";
+}
+
+@RenderBody()
+
+@section Tabs {
+	<ul class="nav nav-pills flex-column">
+		<li class="nav-item">
+			<a class="nav-link" id="overview" asp-page="./Index">Overview</a>
+		</li>
+	</ul>
+}
+
+@section Scripts {
+	@RenderSection("Scripts", required: false)
+}

@@ -68,6 +68,7 @@ namespace proxmox_cloud
                     Configuration.GetConnectionString("DefaultConnection")));
             services.AddScoped(p => p.GetRequiredService<IDbContextFactory<ApplicationDbContext>>().CreateDbContext());
 
+            services.AddSingleton<ProxmoxScraper>();
             services.AddSingleton<PveClientFactory>();
             services.AddSingleton<ProxmoxHostProvider>();
 
@@ -113,33 +114,6 @@ namespace proxmox_cloud
             {
                 options.Conventions.AuthorizeAreaFolder("Admin", "/", "Admin");
             });
-        }
-
-        private class HostSelector : DelegatingHandler
-        {
-            private static readonly HttpRequestOptionsKey<Uri> robinRequest = new("PveHostSelector");
-            private readonly ProxmoxHostProvider hostProvider;
-
-            public HostSelector(ProxmoxHostProvider hostProvider)
-            {
-                this.hostProvider = hostProvider;
-            }
-
-            protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-            {
-                if (request.Options.TryGetValue(robinRequest, out _) || request.RequestUri.Host == "x-host")
-                {
-                    request.RequestUri = new Uri(request.RequestUri.PathAndQuery, UriKind.Relative);
-                }
-                if (!request.RequestUri.IsAbsoluteUri)
-                {
-                    var baseUri = hostProvider.Get();
-                    request.RequestUri = new Uri(baseUri, request.RequestUri);
-                    request.Options.Set(robinRequest, baseUri);
-                }
-
-                return base.SendAsync(request, cancellationToken);
-            }
         }
     }
 }

@@ -6,13 +6,17 @@ namespace proxmox_cloud.Areas.Admin.Pages
 {
     public class SystemNavPages
     {
+        public const string Defaults = "Defaults";
         public const string Flavors = "Flavors";
         public const string Hypervisors = "Hypervisors";
         public const string Images = "Images";
         public const string Index = "Index";
         public const string Instances = "Instances";
+        public const string Networks = "Networks";
         public const string SystemInfo = "SystemInfo";
         public const string Volumes = "Volumes";
+
+        public static string DefaultsNavClass(ViewContext viewContext) => PageNavClass(viewContext, Defaults);
 
         public static string FlavorsNavClass(ViewContext viewContext) => PageNavClass(viewContext, Flavors);
 
@@ -23,6 +27,8 @@ namespace proxmox_cloud.Areas.Admin.Pages
         public static string IndexNavClass(ViewContext viewContext) => PageNavClass(viewContext, Index);
 
         public static string InstancesNavClass(ViewContext viewContext) => PageNavClass(viewContext, Instances);
+
+        public static string NetworksNavClass(ViewContext viewContext) => PageNavClass(viewContext, Networks);
 
         public static string SystemInfoNavClass(ViewContext viewContext) => PageNavClass(viewContext, SystemInfo);
 

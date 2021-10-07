@@ -1,17 +1,16 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using proxmox_cloud.ProxmoxApi;
+using proxmox_cloud.Services;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace proxmox_cloud.Areas.Admin.Pages.System
 {
     public class HypervisorsModel : PageModel
     {
-        private readonly PveClientFactory client;
+        private readonly ProxmoxScraper client;
 
-        public HypervisorsModel(PveClientFactory client)
+        public HypervisorsModel(ProxmoxScraper client)
         {
             this.client = client;
         }
@@ -26,20 +25,13 @@ namespace proxmox_cloud.Areas.Admin.Pages.System
 
         public long Memory { get; set; }
 
-        public async Task<IActionResult> OnGetAsync()
+        public IActionResult OnGetAsync()
         {
-            var resources = await client.Get().GetClusterResources();
-
-            var nodes = resources.Data.Where(r => r.Type == ClusterResourceType.Node);
-            MaxMemory = nodes.Sum(x => x.MaxMem);
-            Memory = nodes.Sum(x => x.Mem);
-            MaxCPU = nodes.Sum(x => x.MaxCPU);
-            CPU = nodes.Sum(x => x.CPU);
-
-            Hypervisors = nodes.Select(r => new HypervisorModel(
-                r.Node, r.MaxCPU, r.CPU, r.MaxMem, r.Mem,
-                resources.Data.Where(r => r.Type == ClusterResourceType.Qemu).Count(x => x.Node == r.Node))
-            ).ToList();
+            client.Collect((in ProxmoxScraper.CollectContext c) =>
+            {
+                Hypervisors = c.Hypervisors.Select(r => new HypervisorModel(
+                    r.Node, r.MaxCpu, r.Cpu, r.MaxMem, r.Mem, 0)).ToList();
+            });
 
             return Page();
         }

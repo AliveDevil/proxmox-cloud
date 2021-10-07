@@ -1,10 +1,10 @@
 ﻿@page
 @model HypervisorsModel
 @{
+	ViewData["Title"] = "All Hypervisors";
 }
-<h3>All Hypervisors</h3>
 
-<h4>Summary</h4>
+<h3>Summary</h3>
 <p>
 	<span class="font-weight-bold">CPU: </span>Used @(Model.CPU.Hundreds().ToString("#"))% of @Model.MaxCPU CPUs
 </p>
@@ -12,9 +12,8 @@
 	<span class="font-weight-bold">Memory: </span>Used @Model.Memory.Bytes().ToString("#") of @Model.MaxMemory.Bytes().ToString("#")
 </p>
 
-<h4>Hypervisors</h4>
+<h3>Hypervisors</h3>
 <table class="table">
-	<caption>Displaying @Model.Hypervisors.Count items.</caption>
 	<thead class="thead-light">
 		<tr>
 			<th scope="col">Hostname</th>
@@ -38,4 +37,9 @@
 			</tr>
 		}
 	</tbody>
+	<tfoot class="thead-light">
+		<tr>
+			<th colspan="6">Displaying @Model.Hypervisors.Count items</th>
+		</tr>
+	</tfoot>
 </table>

@@ -1,0 +1,16 @@
+﻿@{
+	Layout = "../_Layout.cshtml";
+}
+
+<div class="row">
+	<div class="col-md-3">
+		@RenderSection("Tabs")
+	</div>
+	<div class="col-md-9">
+		@RenderBody()
+	</div>
+</div>
+
+@section Scripts {
+	@RenderSection("Scripts", required: false)
+}

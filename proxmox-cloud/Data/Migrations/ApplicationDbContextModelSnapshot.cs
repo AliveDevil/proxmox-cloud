@@ -14,7 +14,7 @@ namespace proxmox_cloud.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "5.0.8");
+                .HasAnnotation("ProductVersion", "5.0.10");
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -212,32 +212,346 @@ namespace proxmox_cloud.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("proxmox_cloud.Data.Project", b =>
+            modelBuilder.Entity("proxmox_cloud.Data.Flavor", b =>
                 {
                     b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Disabled")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("MemoryMb")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("vCPUs")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Flavors");
+                });
+
+            modelBuilder.Entity("proxmox_cloud.Data.FlavorExtraSpec", b =>
+                {
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FlavorId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("TEXT");
+
+                    b.HasIndex("FlavorId");
+
+                    b.HasIndex("Key", "FlavorId")
+                        .IsUnique();
+
+                    b.ToTable("FlavorExtraSpecs");
+                });
+
+            modelBuilder.Entity("proxmox_cloud.Data.FlavorProject", b =>
+                {
+                    b.Property<string>("FlavorId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ProjectId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("FlavorId", "ProjectId")
+                        .IsUnique();
+
+                    b.ToTable("FlavorProjects");
+                });
+
+            modelBuilder.Entity("proxmox_cloud.Data.Image", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("MinDisk")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("MinRam")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Protected")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("Size")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("VirtualSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Visibility")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("OwnerId");
+
+                    b.ToTable("Images");
+                });
+
+            modelBuilder.Entity("proxmox_cloud.Data.ImageLocation", b =>
+                {
+                    b.Property<string>("ImageId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("TEXT");
+
+                    b.HasIndex("ImageId")
+                        .IsUnique();
+
+                    b.ToTable("ImageLocations");
+                });
+
+            modelBuilder.Entity("proxmox_cloud.Data.ImageProperty", b =>
+                {
+                    b.Property<string>("ImageId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Value")
+                        .HasColumnType("TEXT");
+
+                    b.HasIndex("ImageId", "Name")
+                        .IsUnique();
+
+                    b.ToTable("ImageProperties");
+                });
+
+            modelBuilder.Entity("proxmox_cloud.Data.Instance", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DisplayDescription")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DisplayName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FlavorId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ImageId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("LaunchedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("MemoryMb")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ProjectId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("RootGB")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("TerminatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("VCPU")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("FlavorId");
+
+                    b.HasIndex("ImageId");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Instances");
+                });
+
+            modelBuilder.Entity("proxmox_cloud.Data.Project", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ParentId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("ParentId");
 
                     b.ToTable("Projects");
                 });
 
             modelBuilder.Entity("proxmox_cloud.Data.ProjectUser", b =>
                 {
+                    b.Property<string>("ParentId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("ProjectId")
-                        .HasColumnType("TEXT");
+                    b.HasIndex("UserId");
 
-                    b.HasKey("UserId", "ProjectId");
-
-                    b.HasIndex("ProjectId");
+                    b.HasIndex("ParentId", "UserId")
+                        .IsUnique();
 
                     b.ToTable("ProjectUsers");
+                });
+
+            modelBuilder.Entity("proxmox_cloud.Data.Volume", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DisplayDescription")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DisplayName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("LaunchedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ProjctId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("ScheduledAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Size")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("TerminatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjctId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Volumes");
+                });
+
+            modelBuilder.Entity("proxmox_cloud.Data.VolumeAttachment", b =>
+                {
+                    b.Property<string>("InstanceId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("VolumeId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasIndex("InstanceId");
+
+                    b.HasIndex("VolumeId");
+
+                    b.ToTable("VolumeAttachment");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -291,19 +605,169 @@ namespace proxmox_cloud.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("proxmox_cloud.Data.ProjectUser", b =>
+            modelBuilder.Entity("proxmox_cloud.Data.FlavorExtraSpec", b =>
                 {
-                    b.HasOne("proxmox_cloud.Data.Project", null)
+                    b.HasOne("proxmox_cloud.Data.Flavor", "Flavor")
+                        .WithMany()
+                        .HasForeignKey("FlavorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Flavor");
+                });
+
+            modelBuilder.Entity("proxmox_cloud.Data.FlavorProject", b =>
+                {
+                    b.HasOne("proxmox_cloud.Data.Flavor", "Flavor")
+                        .WithMany()
+                        .HasForeignKey("FlavorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("proxmox_cloud.Data.Project", "Project")
                         .WithMany()
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.Navigation("Flavor");
+
+                    b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("proxmox_cloud.Data.Image", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("proxmox_cloud.Data.ImageLocation", b =>
+                {
+                    b.HasOne("proxmox_cloud.Data.Image", "Image")
+                        .WithOne()
+                        .HasForeignKey("proxmox_cloud.Data.ImageLocation", "ImageId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Image");
+                });
+
+            modelBuilder.Entity("proxmox_cloud.Data.ImageProperty", b =>
+                {
+                    b.HasOne("proxmox_cloud.Data.Image", "Image")
+                        .WithMany()
+                        .HasForeignKey("ImageId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Image");
+                });
+
+            modelBuilder.Entity("proxmox_cloud.Data.Instance", b =>
+                {
+                    b.HasOne("proxmox_cloud.Data.Flavor", "Flavor")
+                        .WithMany()
+                        .HasForeignKey("FlavorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("proxmox_cloud.Data.Image", "Image")
+                        .WithMany()
+                        .HasForeignKey("ImageId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("proxmox_cloud.Data.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Flavor");
+
+                    b.Navigation("Image");
+
+                    b.Navigation("Project");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("proxmox_cloud.Data.Project", b =>
+                {
+                    b.HasOne("proxmox_cloud.Data.Project", "Parent")
+                        .WithMany()
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("proxmox_cloud.Data.ProjectUser", b =>
+                {
+                    b.HasOne("proxmox_cloud.Data.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("proxmox_cloud.Data.Volume", b =>
+                {
+                    b.HasOne("proxmox_cloud.Data.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjctId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("proxmox_cloud.Data.VolumeAttachment", b =>
+                {
+                    b.HasOne("proxmox_cloud.Data.Instance", "Instance")
+                        .WithMany()
+                        .HasForeignKey("InstanceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("proxmox_cloud.Data.Volume", "Volume")
+                        .WithMany()
+                        .HasForeignKey("VolumeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Instance");
+
+                    b.Navigation("Volume");
                 });
 #pragma warning restore 612, 618
         }

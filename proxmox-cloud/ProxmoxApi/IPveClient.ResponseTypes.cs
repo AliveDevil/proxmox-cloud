@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text.Json.Serialization;
 
@@ -11,6 +12,25 @@ namespace proxmox_cloud.ProxmoxApi
     public enum NodeStatus { Unknown, Offline, Online }
 
     public enum StorageType { Btrfs, CephFS, CIFS, Dir, GlusterFS, iSCSI, iSCSIDirect, LVM, LVMThin, NFS, PBS, RBD, ZFS, ZFSPool }
+
+    public static class ClusterResourceExtensions
+    {
+        public static object Map(this ClusterResource @this) => @this.Type switch
+        {
+            ClusterResourceType.Node => new HypervisorModel(@this),
+            //TODO ClusterResourceType.LXC => new LXCModel(),
+            //TODO ClusterResourceType.Pool => new PoolModel(),
+            //TODO ClusterResourceType.Qemu => new VMModel(),
+            //TODO ClusterResourceType.SDN => new SDNModel(),
+            //TODO ClusterResourceType.Storage => new StorageModel(),
+            _ => throw new ArgumentException(@this.Type.ToString())
+        };
+    }
+
+    public static class NodeResponseExtensions
+    {
+        public static HypervisorModel Map(this NodeResponse @this) => new(@this);
+    }
 
     public sealed class ApplianceInfoResponse : JsonResponse { }
 

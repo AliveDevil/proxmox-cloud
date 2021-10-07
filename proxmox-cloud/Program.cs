@@ -14,6 +14,7 @@ namespace proxmox_cloud
                     services.AddHostedService<DbMigrationService>();
                     services.AddHostedService<ProxmoxLoadBalancer>();
                     services.AddHostedService<AdminUserService>();
+                    services.AddHostedService(services => services.GetService<ProxmoxScraper>());
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
