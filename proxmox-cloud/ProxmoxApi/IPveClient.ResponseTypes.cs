@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
 namespace proxmox_cloud.ProxmoxApi
@@ -11,7 +12,23 @@ namespace proxmox_cloud.ProxmoxApi
 
     public enum NodeStatus { Unknown, Offline, Online }
 
+    public enum SDNZoneType { EVPN, Faucet, QinQ, Simple, VLAN, VXLAN }
+
     public enum StorageType { Btrfs, CephFS, CIFS, Dir, GlusterFS, iSCSI, iSCSIDirect, LVM, LVMThin, NFS, PBS, RBD, ZFS, ZFSPool }
+
+    public enum VLANProtocol
+    {
+        [EnumMember(Value = "802.1q")]
+        IEEE8021q,
+
+        [EnumMember(Value = "802.1ad")]
+        IEEE8021ad
+    }
+
+    public enum VNetType
+    {
+        VNet
+    }
 
     public static class ClusterResourceExtensions
     {
@@ -21,7 +38,7 @@ namespace proxmox_cloud.ProxmoxApi
             //TODO ClusterResourceType.LXC => new LXCModel(),
             //TODO ClusterResourceType.Pool => new PoolModel(),
             //TODO ClusterResourceType.Qemu => new VMModel(),
-            //TODO ClusterResourceType.SDN => new SDNModel(),
+            ClusterResourceType.SDN => new ZoneModel(@this),
             //TODO ClusterResourceType.Storage => new StorageModel(),
             _ => throw new ArgumentException(@this.Type.ToString())
         };
@@ -235,5 +252,52 @@ namespace proxmox_cloud.ProxmoxApi
         public int Uptime { get; init; }
 
         public int VMId { get; init; }
+    }
+
+    public sealed class VNetResponse : JsonResponse
+    {
+        public string Alias { get; init; }
+
+        public string Digest { get; init; }
+
+        public int Tag { get; init; }
+
+        public VNetType Type { get; init; }
+
+        public string VNet { get; init; }
+
+        public string Zone { get; init; }
+    }
+
+    public sealed class ZoneResponse : JsonResponse
+    {
+        public string Bridge { get; init; }
+
+        public string Digest { get; init; }
+
+        public string DNS { get; init; }
+
+        public string DNSZone { get; init; }
+
+        public string IPAM { get; init; }
+
+        public int MTU { get; init; }
+
+        public string Nodes { get; init; }
+
+        public bool Pending { get; init; }
+
+        public string ReverseDNS { get; init; }
+
+        public string State { get; init; }
+
+        public int Tag { get; init; }
+
+        public SDNZoneType Type { get; init; }
+
+        [JsonPropertyName("vlan-protocol")]
+        public string VLANProtocol { get; init; }
+
+        public string Zone { get; init; }
     }
 }

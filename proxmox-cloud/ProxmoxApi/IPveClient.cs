@@ -50,5 +50,17 @@ namespace proxmox_cloud.ProxmoxApi
 
         [Get("/version")]
         Task<ObjectResponse<VersionResponse>> GetVersion();
+
+        [Get("/cluster/sdn/vnets/{vnet}")]
+        Task<ObjectResponse<VNetResponse>> GetVNet(string vnet);
+
+        [Get("/cluster/sdn/vnets")]
+        Task<ArrayResponse<VNetResponse>> GetVNets();
+
+        [Get("/cluster/sdn/zones/{zone}")]
+        Task<ObjectResponse<ZoneResponse>> GetZone(string zone);
+
+        [Get("/cluster/sdn/zones")]
+        Task<ArrayResponse<ZoneResponse>> GetZones();
     }
 }

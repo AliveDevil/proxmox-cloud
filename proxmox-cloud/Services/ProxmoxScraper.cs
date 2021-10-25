@@ -54,14 +54,20 @@ namespace proxmox_cloud.Services
             IEnumerable<HypervisorModel> hypervisors = Enumerable.Empty<HypervisorModel>();
             if (types.TryGetValue(ClusterResourceType.Node, out var hypervisorResources))
             {
-                hypervisors = hypervisorResources.Select(_ => new HypervisorModel(_));
+                hypervisors = hypervisorResources.Select(_ => new HypervisorModel(_)).ToList();
+            }
+            IEnumerable<ZoneModel> zones = Enumerable.Empty<ZoneModel>();
+            if (types.TryGetValue(ClusterResourceType.SDN, out var sdnResources))
+            {
+                zones = sdnResources.Select(_ => new ZoneModel(_)).ToList();
             }
 
             using (atomic.UseWriteLock())
             {
                 scrape = new()
                 {
-                    Hypervisors = hypervisors
+                    Hypervisors = hypervisors,
+                    Zones = zones
                 };
             }
         }
@@ -77,6 +83,8 @@ namespace proxmox_cloud.Services
 
             public IEnumerable<HypervisorModel> Hypervisors => Get(_ => _.Hypervisors);
 
+            public IEnumerable<ZoneModel> Zones => Get(_ => _.Zones);
+
             private T Get<T>(Expression<Func<Scrape, T>> expr) => expr.Body is MemberExpression member &&
                 member.Member is PropertyInfo property ? (T)property.GetValue(scraper.scrape) : default;
         }
@@ -84,6 +92,8 @@ namespace proxmox_cloud.Services
         public struct Scrape
         {
             public IEnumerable<HypervisorModel> Hypervisors { get; init; }
+
+            public IEnumerable<ZoneModel> Zones { get; init; }
         }
     }
 }
