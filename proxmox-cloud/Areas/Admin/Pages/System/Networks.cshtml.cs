@@ -1,14 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using proxmox_cloud.ProxmoxApi;
+using System.Threading.Tasks;
 
 namespace proxmox_cloud.Areas.Admin.Pages.System
 {
     public class NetworksModel : PageModel
     {
+        private readonly PveClientFactory pveClient;
+
+        public NetworksModel(PveClientFactory pveClient)
+        {
+            this.pveClient = pveClient;
+        }
+
         public void OnGet()
         {
         }

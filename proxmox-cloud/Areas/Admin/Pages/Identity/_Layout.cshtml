@@ -1,0 +1,19 @@
+﻿@{
+	Layout = "/Pages/Shared/_Layout.cshtml";
+}
+
+<h1>Identity</h1>
+<hr />
+<div class="row">
+	<div class="col-md-3">
+		<partial name="_SystemNav" />
+	</div>
+	<div class="col-md-9">
+		<h2>@(ViewData["Title"])</h2>
+		@RenderBody()
+	</div>
+</div>
+
+@section Scripts {
+	@RenderSection("Scripts", required: false)
+}
