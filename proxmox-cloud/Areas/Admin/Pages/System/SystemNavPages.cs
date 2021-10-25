@@ -2,7 +2,7 @@
 using System;
 using static System.IO.Path;
 
-namespace proxmox_cloud.Areas.Admin.Pages
+namespace proxmox_cloud.Areas.Admin.Pages.System
 {
     public class SystemNavPages
     {
